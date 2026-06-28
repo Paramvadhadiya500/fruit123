@@ -171,35 +171,8 @@
   }
 
   /* ══════════════════════════════════════════════
-     HEADLINE SHOW / HIDE
+     HEADLINE ANIMATION (Handled by ScrollTrigger)
   ══════════════════════════════════════════════ */
-  let headlineVisible = false;
-
-  function showHeadline() {
-    if (headlineVisible) return;
-    headlineVisible = true;
-    heroHeadline.classList.add('is-visible');
-    gsap.to(heroHeadline, {
-      opacity: 1,
-      y: 0,
-      duration: 0.85,
-      ease: 'power3.out',
-      overwrite: true,
-    });
-  }
-
-  function hideHeadline() {
-    if (!headlineVisible) return;
-    headlineVisible = false;
-    heroHeadline.classList.remove('is-visible');
-    gsap.to(heroHeadline, {
-      opacity: 0,
-      y: 20,
-      duration: 0.4,
-      ease: 'power2.in',
-      overwrite: true,
-    });
-  }
 
   /* ══════════════════════════════════════════════
      INIT SCROLL TRIGGER (called after batch-1 loads)
@@ -210,21 +183,31 @@
     // Draw first frame immediately
     drawFrame(0);
 
-    scrollTrigger = ScrollTrigger.create({
-      trigger:       '#hero',
-      start:         'top top',
-      end:           SCROLL_SPACE,
-      pin:           true,
-      anticipatePin: 1,
-      scrub:         SCRUB_SMOOTHING,
-
-      onUpdate(self) {
-        // Map progress [0,1] → frame index [0, FRAME_COUNT-1]
-        const idx = Math.min(
-          Math.round(self.progress * (FRAME_COUNT - 1)),
-          FRAME_COUNT - 1
-        );
-
+    const frameObj = { frame: 0 };
+    
+    // 1. FRAME SEQUENCE (with inertia scrub)
+    gsap.to(frameObj, {
+      frame: FRAME_COUNT - 1,
+      snap: "frame",
+      ease: "none",
+      scrollTrigger: {
+        trigger: '#hero',
+        start: 'top top',
+        end: SCROLL_SPACE,
+        pin: true,
+        anticipatePin: 1,
+        scrub: 0.5, // 0.5s smoothing (inertia)
+        onUpdate: (self) => {
+          // Fade out scroll cue on first scroll
+          if (self.progress > 0.01) {
+            const cueOpacity = Math.max(0, 1 - self.progress * 15);
+            scrollCue.style.opacity = cueOpacity;
+          }
+        }
+      },
+      onUpdate: () => {
+        const idx = Math.round(frameObj.frame);
+        
         // Only draw if image is ready
         if (images[idx] && images[idx].complete && images[idx].naturalWidth > 0) {
           drawFrame(idx);
@@ -237,21 +220,42 @@
             }
           }
         }
-
-        // Fade out scroll cue on first scroll
-        if (self.progress > 0.01) {
-          const cueOpacity = Math.max(0, 1 - self.progress * 15);
-          scrollCue.style.opacity = cueOpacity;
-        }
-
-        // Headline: in at 70%, out below 65% (hysteresis to prevent flicker)
-        if (self.progress >= HEADLINE_AT) {
-          showHeadline();
-        } else if (self.progress < HEADLINE_AT - 0.05) {
-          hideHeadline();
-        }
-      },
+      }
     });
+
+    // 2. CINEMATIC CANVAS ZOOM
+    gsap.fromTo(canvas, 
+      { scale: 1.15 },
+      {
+        scale: 1,
+        ease: "none",
+        scrollTrigger: {
+          trigger: '#hero',
+          start: 'top top',
+          end: SCROLL_SPACE,
+          scrub: true,
+        }
+      }
+    );
+
+    // 3. PARALLAX HEADLINE REVEAL
+    gsap.fromTo(heroHeadline, 
+      { opacity: 0, y: 60, filter: 'blur(12px)' },
+      {
+        opacity: 1,
+        y: 0,
+        filter: 'blur(0px)',
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: '#hero',
+          start: 'top+=' + (window.innerHeight * 3.2) + ' top', // Start at ~64% scroll
+          end: 'top+=' + (window.innerHeight * 4.2) + ' top',   // Fully visible at ~84%
+          scrub: 1, // Smooth scrub with slight lag
+          onEnter: () => heroHeadline.classList.add('is-visible'),
+          onLeaveBack: () => heroHeadline.classList.remove('is-visible')
+        }
+      }
+    );
 
     // Show scroll cue
     requestAnimationFrame(() => {
