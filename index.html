@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="FRUTIS — Pure fruit, crafted into luxury. No flour, no frosting. Just nature's finest, stacked into edible art." />
+  <meta property="og:title" content="FRUTIS — Fruit as Luxury" />
+  <meta property="og:description" content="No flour. No frosting. Just nature's finest, stacked into edible art." />
+  <title>FRUTIS — Fruit as Luxury</title>
+
+  <!-- Google Fonts: Fraunces (display serif) + Sora (clean sans) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,900;1,9..144,300;1,9..144,900&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════
+       LOADING SCREEN
+  ═══════════════════════════════════════ -->
+  <div id="loader" class="loader" role="status" aria-label="Loading FRUTIS" aria-live="polite">
+    <div class="loader__inner">
+      <div class="loader__brand" aria-hidden="true">
+        <span class="loader__letter">F</span>
+        <span class="loader__letter">R</span>
+        <span class="loader__letter">U</span>
+        <span class="loader__letter">T</span>
+        <span class="loader__letter">I</span>
+        <span class="loader__letter">S</span>
+      </div>
+      <p class="loader__tagline">Nature's finest, crafted.</p>
+      <div class="loader__progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="loaderProgressBar">
+        <div id="loaderBar" class="loader__progress-fill"></div>
+      </div>
+      <span class="loader__pct"><span id="loaderCount">0</span>%</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       NAVIGATION
+  ═══════════════════════════════════════ -->
+  <header id="siteHeader" class="site-header" role="banner">
+    <nav class="nav" role="navigation" aria-label="Main navigation">
+      <a href="#hero" class="nav__logo" aria-label="FRUTIS — Back to top">FRUTIS</a>
+      <button class="nav__menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false" aria-controls="navLinks">
+        <span class="nav__hamburger" aria-hidden="true"></span>
+      </button>
+      <ul class="nav__links" id="navLinks" role="list">
+        <li><a href="#ingredients" class="nav__link" id="navIngredients">Ingredients</a></li>
+        <li><a href="#about" class="nav__link" id="navAbout">Our Story</a></li>
+        <li><a href="#order" class="nav__link nav__link--cta" id="navOrder">Order Now</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- ═══════════════════════════════════════
+       HERO — SCROLL ANIMATION
+  ═══════════════════════════════════════ -->
+  <section id="hero" class="hero" aria-label="Fruit tower scroll animation">
+
+    <!-- Canvas: scroll-driven frame animation -->
+    <canvas
+      id="heroCanvas"
+      class="hero__canvas"
+      role="img"
+      aria-label="Animation of fresh fruit assembling into a sculptural fruit tower"
+    ></canvas>
+
+    <!-- Reduced-motion static fallback (hidden by default, shown via JS/CSS) -->
+    <img
+      id="staticFallback"
+      class="hero__static-fallback"
+      src="./frame/frame001 (80).webp"
+      alt="FRUTIS fruit tower — layers of kiwi, blueberries, raspberries, mango and grapes stacked on marble"
+    />
+
+    <!-- Scroll cue: fruit-drop ripple indicator -->
+    <div id="scrollCue" class="scroll-cue" aria-hidden="true">
+      <div class="scroll-cue__ripple">
+        <span class="scroll-cue__dot"></span>
+      </div>
+      <span class="scroll-cue__label">Scroll</span>
+    </div>
+
+    <!-- Headline overlay (fades in at ~70% scroll progress) -->
+    <div id="heroHeadline" class="hero__headline" aria-live="polite">
+      <p class="hero__eyebrow">Handcrafted &middot; All Natural</p>
+      <h1 class="hero__title">
+        Pure<br />
+        <em class="hero__title-accent">Fruit<span class="hero__title-period">.</span></em>
+      </h1>
+      <p class="hero__subtitle">No flour. No frosting.<br />Just nature's finest, stacked into edible art.</p>
+      <a href="#order" class="hero__cta" id="heroCta">Craft Yours &rarr;</a>
+    </div>
+
+  </section>
+  <!-- end #hero -->
+
+  <!-- ═══════════════════════════════════════
+       SECTION 2 — INGREDIENTS
+  ═══════════════════════════════════════ -->
+  <section id="ingredients" class="section section--light" aria-labelledby="ingredients-heading">
+    <div class="section__container">
+      <div class="section__header reveal-up">
+        <p class="section__eyebrow">What Goes In</p>
+        <h2 id="ingredients-heading" class="section__title">
+          Only the<br /><em>purest.</em>
+        </h2>
+        <p class="section__body section__body--wide">
+          Every FRUTIS tower is assembled by hand using fruits selected at peak ripeness.
+          No binders, no syrups, no preservatives — just the real thing.
+        </p>
+      </div>
+
+      <ul class="ingredients-grid" role="list" aria-label="Key ingredients">
+        <li class="ingredient-card reveal-up" role="listitem" style="--delay: 0ms">
+          <div class="ingredient-card__glyph" aria-hidden="true">🍓</div>
+          <h3 class="ingredient-card__name">Strawberries</h3>
+          <p class="ingredient-card__desc">Hand-carved into blooms</p>
+        </li>
+        <li class="ingredient-card reveal-up" role="listitem" style="--delay: 80ms">
+          <div class="ingredient-card__glyph" aria-hidden="true">🥝</div>
+          <h3 class="ingredient-card__name">Kiwi</h3>
+          <p class="ingredient-card__desc">Precision-sliced rings</p>
+        </li>
+        <li class="ingredient-card reveal-up" role="listitem" style="--delay: 160ms">
+          <div class="ingredient-card__glyph" aria-hidden="true">🫐</div>
+          <h3 class="ingredient-card__name">Blueberries</h3>
+          <p class="ingredient-card__desc">Layered for depth &amp; contrast</p>
+        </li>
+        <li class="ingredient-card reveal-up" role="listitem" style="--delay: 240ms">
+          <div class="ingredient-card__glyph" aria-hidden="true">🥭</div>
+          <h3 class="ingredient-card__name">Mango</h3>
+          <p class="ingredient-card__desc">Sculpted into roses at the crown</p>
+        </li>
+        <li class="ingredient-card reveal-up" role="listitem" style="--delay: 320ms">
+          <div class="ingredient-card__glyph" aria-hidden="true">🍊</div>
+          <h3 class="ingredient-card__name">Mandarin</h3>
+          <p class="ingredient-card__desc">Citrus brightness in every tier</p>
+        </li>
+        <li class="ingredient-card reveal-up" role="listitem" style="--delay: 400ms">
+          <div class="ingredient-card__glyph" aria-hidden="true">🍇</div>
+          <h3 class="ingredient-card__name">Grapes</h3>
+          <p class="ingredient-card__desc">Green &amp; red, forming the crown</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       SECTION 3 — ABOUT
+  ═══════════════════════════════════════ -->
+  <section id="about" class="section section--dark" aria-labelledby="about-heading">
+    <div class="section__container section__container--about">
+      <div class="about__text reveal-up">
+        <p class="section__eyebrow section__eyebrow--light">Our Philosophy</p>
+        <h2 id="about-heading" class="section__title section__title--light">
+          Fruit is<br />the <em>luxury.</em>
+        </h2>
+        <p class="section__body section__body--light">
+          FRUTIS was born from a single belief: that nature, at its peak, needs nothing added.
+          Our fruit towers are assembled fresh on the day of delivery — each layer a deliberate editorial choice.
+        </p>
+        <p class="section__body section__body--light">
+          We work with a small circle of growers who share our obsession with ripeness.
+          No compromises. No exceptions.
+        </p>
+      </div>
+      <div class="about__callout reveal-up" aria-hidden="true">
+        <div class="about__stat">
+          <span class="about__stat-number">100</span>
+          <span class="about__stat-unit">%</span>
+        </div>
+        <span class="about__stat-label">Natural · No Additives</span>
+        <div class="about__orbit-ring"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       SECTION 4 — ORDER / CONTACT
+  ═══════════════════════════════════════ -->
+  <section id="order" class="section section--marble" aria-labelledby="order-heading">
+    <div class="section__container section__container--narrow">
+      <div class="section__header reveal-up">
+        <p class="section__eyebrow">Reserve Yours</p>
+        <h2 id="order-heading" class="section__title">
+          Ready to<br /><em>order?</em>
+        </h2>
+        <p class="section__body">
+          Each tower is made to order, assembled on the day of delivery.
+          We accept bookings at least 48 hours in advance.
+        </p>
+      </div>
+
+      <form class="order-form reveal-up" id="orderForm" novalidate aria-label="Order request form">
+        <div class="order-form__row">
+          <div class="order-form__field">
+            <label class="order-form__label" for="orderName">Your Name</label>
+            <input
+              class="order-form__input"
+              type="text"
+              id="orderName"
+              name="name"
+              placeholder="Full name"
+              autocomplete="name"
+              required
+            />
+          </div>
+          <div class="order-form__field">
+            <label class="order-form__label" for="orderPhone">Phone / WhatsApp</label>
+            <input
+              class="order-form__input"
+              type="tel"
+              id="orderPhone"
+              name="phone"
+              placeholder="+91 00000 00000"
+              autocomplete="tel"
+              required
+            />
+          </div>
+        </div>
+        <div class="order-form__field">
+          <label class="order-form__label" for="orderDate">Preferred Date</label>
+          <input
+            class="order-form__input"
+            type="date"
+            id="orderDate"
+            name="date"
+            required
+          />
+        </div>
+        <div class="order-form__field">
+          <label class="order-form__label" for="orderMessage">Special Requests</label>
+          <textarea
+            class="order-form__input order-form__textarea"
+            id="orderMessage"
+            name="message"
+            rows="4"
+            placeholder="Tell us about the occasion, dietary needs, or size…"
+          ></textarea>
+        </div>
+        <button class="order-form__submit" type="submit" id="orderSubmit">
+          <span id="orderSubmitLabel">Send Request</span>
+          <svg class="order-form__arrow" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path d="M4 10h12M11 5l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       FOOTER
+  ═══════════════════════════════════════ -->
+  <footer class="footer" role="contentinfo">
+    <div class="footer__inner">
+      <span class="footer__logo" aria-label="FRUTIS">FRUTIS</span>
+      <p class="footer__tagline">Fruit as a luxury object.</p>
+      <p class="footer__copy">&copy; 2025 FRUTIS. All fruit, all natural. Made with care.</p>
+    </div>
+  </footer>
+
+  <!-- GSAP via CDN (core + ScrollTrigger) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" crossorigin="anonymous"></script>
+  <script src="script.js"></script>
+
+</body>
+</html>
