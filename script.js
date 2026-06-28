@@ -24,9 +24,6 @@
   ══════════════════════════════════════════════ */
   const FRAME_COUNT      = 80;
   const BATCH_SIZE       = 40;
-  const SCROLL_SPACE     = '+=500%';  // 5× viewport height of scroll room
-  const HEADLINE_AT      = 0.70;     // Show headline at 70% scroll progress
-  const SCRUB_SMOOTHING  = true;     // true = 1:1 scroll (instant), number = lag seconds
 
   /* ══════════════════════════════════════════════
      DOM REFS
@@ -175,92 +172,112 @@
   ══════════════════════════════════════════════ */
 
   /* ══════════════════════════════════════════════
-     INIT SCROLL TRIGGER (called after batch-1 loads)
+     INIT AUTO-PLAY CINEMATIC INTRO
   ══════════════════════════════════════════════ */
   function initScrollAnimation() {
-    gsap.registerPlugin(ScrollTrigger);
+    // Lock the page scroll initially
+    document.body.style.overflow = 'hidden';
 
     // Draw first frame immediately
     drawFrame(0);
-
-    const frameObj = { frame: 0 };
     
-    // 1. FRAME SEQUENCE (with inertia scrub)
-    gsap.to(frameObj, {
-      frame: FRAME_COUNT - 1,
-      snap: "frame",
-      ease: "none",
-      scrollTrigger: {
-        trigger: '#hero',
-        start: 'top top',
-        end: SCROLL_SPACE,
-        pin: true,
-        anticipatePin: 1,
-        scrub: 0.5, // 0.5s smoothing (inertia)
-        onUpdate: (self) => {
-          // Fade out scroll cue on first scroll
-          if (self.progress > 0.01) {
-            const cueOpacity = Math.max(0, 1 - self.progress * 15);
-            scrollCue.style.opacity = cueOpacity;
-          }
-        }
-      },
-      onUpdate: () => {
-        const idx = Math.round(frameObj.frame);
-        
-        // Only draw if image is ready
-        if (images[idx] && images[idx].complete && images[idx].naturalWidth > 0) {
-          drawFrame(idx);
-        } else if (idx > 0) {
-          // Fall back to nearest loaded frame
-          for (let fallback = idx - 1; fallback >= 0; fallback--) {
-            if (images[fallback] && images[fallback].complete && images[fallback].naturalWidth > 0) {
-              drawFrame(fallback);
-              break;
-            }
-          }
-        }
-      }
-    });
-
-    // 2. CINEMATIC CANVAS ZOOM
-    gsap.fromTo(canvas, 
-      { scale: 1.15 },
-      {
-        scale: 1,
-        ease: "none",
-        scrollTrigger: {
-          trigger: '#hero',
-          start: 'top top',
-          end: SCROLL_SPACE,
-          scrub: true,
-        }
-      }
-    );
-
-    // 3. PARALLAX HEADLINE REVEAL
-    gsap.fromTo(heroHeadline, 
-      { opacity: 0, y: 60, filter: 'blur(12px)' },
-      {
-        opacity: 1,
-        y: 0,
-        filter: 'blur(0px)',
-        ease: 'power2.out',
-        scrollTrigger: {
-          trigger: '#hero',
-          start: 'top+=' + (window.innerHeight * 3.2) + ' top', // Start at ~64% scroll
-          end: 'top+=' + (window.innerHeight * 4.2) + ' top',   // Fully visible at ~84%
-          scrub: 1, // Smooth scrub with slight lag
-          onEnter: () => heroHeadline.classList.add('is-visible'),
-          onLeaveBack: () => heroHeadline.classList.remove('is-visible')
-        }
-      }
-    );
+    // Set initial canvas zoom
+    gsap.set(canvas, { scale: 1.15 });
 
     // Show scroll cue
     requestAnimationFrame(() => {
       scrollCue.classList.add('is-visible');
     });
+
+    let animationTriggered = false;
+
+    function playCinematicIntro() {
+      if (animationTriggered) return;
+      animationTriggered = true;
+
+      // Remove listeners so it only triggers once
+      window.removeEventListener('wheel', handleIntent);
+      window.removeEventListener('touchmove', handleIntent);
+      window.removeEventListener('keydown', handleKeyIntent);
+
+      const frameObj = { frame: 0 };
+      
+      const tl = gsap.timeline({
+        onComplete: () => {
+          // Unlock the page scroll when animation completes
+          document.body.style.overflow = '';
+        }
+      });
+
+      // 1. Fade out the scroll cue quickly
+      tl.to(scrollCue, { opacity: 0, duration: 0.3 }, 0);
+
+      // 2. Play the frames automatically (2.5 seconds)
+      tl.to(frameObj, {
+        frame: FRAME_COUNT - 1,
+        snap: "frame",
+        duration: 2.5,
+        ease: "power2.inOut", // Smooth acceleration/deceleration
+        onUpdate: () => {
+          const idx = Math.round(frameObj.frame);
+          
+          if (images[idx] && images[idx].complete && images[idx].naturalWidth > 0) {
+            drawFrame(idx);
+          } else if (idx > 0) {
+            for (let fallback = idx - 1; fallback >= 0; fallback--) {
+              if (images[fallback] && images[fallback].complete && images[fallback].naturalWidth > 0) {
+                drawFrame(fallback);
+                break;
+              }
+            }
+          }
+        }
+      }, 0);
+
+      // 3. Subtle zoom out tied to the timeline
+      tl.to(canvas, {
+        scale: 1,
+        duration: 2.5,
+        ease: "power2.inOut"
+      }, 0);
+
+      // 4. Parallax headline reveal near the end
+      tl.fromTo(heroHeadline, 
+        { opacity: 0, y: 60, filter: 'blur(12px)' },
+        {
+          opacity: 1,
+          y: 0,
+          filter: 'blur(0px)',
+          duration: 1.2,
+          ease: "power3.out",
+          onStart: () => heroHeadline.classList.add('is-visible')
+        }, 1.6 // Start revealing at 1.6s into the 2.5s timeline
+      );
+    }
+
+    // Intent detection functions
+    function handleIntent(e) {
+      // Trigger if scrolling down, or on any mobile swipe
+      if (e.type === 'wheel' && e.deltaY > 0) {
+        playCinematicIntro();
+      } else if (e.type === 'touchmove') {
+        playCinematicIntro();
+      }
+    }
+
+    function handleKeyIntent(e) {
+      if (['ArrowDown', 'PageDown', 'Space'].includes(e.code)) {
+        playCinematicIntro();
+        e.preventDefault(); // prevent actual scrolling jump before unlock
+      }
+    }
+
+    // Attach listeners after a tiny delay so the final loader scroll doesn't misfire it
+    setTimeout(() => {
+      window.addEventListener('wheel', handleIntent, { passive: true });
+      window.addEventListener('touchmove', handleIntent, { passive: true });
+      window.addEventListener('keydown', handleKeyIntent, { passive: false });
+    }, 500);
   }
 
   /* ══════════════════════════════════════════════
